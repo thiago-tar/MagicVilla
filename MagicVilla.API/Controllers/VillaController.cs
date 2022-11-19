@@ -104,7 +104,7 @@ namespace MagicVilla.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdatePartialVilla(int id, [FromBody] JsonPatchDocument<VillaDTO> patchDTO)
+        public async Task<IActionResult> UpdatePartialVilla(int id, [FromBody] JsonPatchDocument<Villa> patchDTO)
         {
             if (patchDTO == null || id == 0) return BadRequest();
 
@@ -112,13 +112,10 @@ namespace MagicVilla.API.Controllers
 
             if (villa == null) return NotFound();
 
-            var modelDTO = villa.ConvertToVillaDTO();
 
-            patchDTO.ApplyTo(modelDTO, ModelState);
+            patchDTO.ApplyTo(villa, ModelState);
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            _db.Villas.Update(modelDTO.ConvertToVilla());
             await _db.SaveChangesAsync();
 
             return NoContent();

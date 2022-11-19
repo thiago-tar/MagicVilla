@@ -2,6 +2,7 @@
 using MagicVilla.API.Model;
 using MagicVilla.API.Model.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MagicVilla.API.Controllers
@@ -10,11 +11,18 @@ namespace MagicVilla.API.Controllers
     [ApiController]
     public class VillaController : ControllerBase
     {
+        public ILogger<VillaController> _logger { get; }
+
+        public VillaController(ILogger<VillaController> logger)
+        {
+            _logger = logger;
+        }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<VillaDTO>>> GetVillas()
         {
+            _logger.LogInformation("Get all villas");
             return Ok(VillaStore.VillaDTOs);
         }
 
@@ -75,7 +83,7 @@ namespace MagicVilla.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutVilla(int id, [FromBody] VillaDTO villaDTO)
+        public async Task<IActionResult> UpdateVilla(int id, [FromBody] VillaDTO villaDTO)
         {
             if (villaDTO == null || id != villaDTO.Id || id == 0) return BadRequest();
 
@@ -83,12 +91,32 @@ namespace MagicVilla.API.Controllers
 
             if (villa == null) return NotFound();
 
-            villa.Name= villaDTO.Name;
-            villa.Sfto= villaDTO.Sfto;
-            villa.Ocurrency= villaDTO.Ocurrency;
+            villa.Name = villaDTO.Name;
+            villa.Sfto = villaDTO.Sfto;
+            villa.Ocurrency = villaDTO.Ocurrency;
 
             return NoContent();
+
+        }
+
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdatePartialVilla(int id, [FromBody] JsonPatchDocument<VillaDTO> patchDTO)
+        {
+            if (patchDTO == null || id == 0) return BadRequest();
+
+            var villa = VillaStore.VillaDTOs.FirstOrDefault(x => x.Id == id);
+
+            if (villa == null) return NotFound();
             
+            patchDTO.ApplyTo(villa, ModelState);
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return NoContent();
+
         }
     }
 }

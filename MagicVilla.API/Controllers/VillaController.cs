@@ -108,7 +108,7 @@ namespace MagicVilla.API.Controllers
         {
             if (patchDTO == null || id == 0) return BadRequest();
 
-            var villa = await _db.Villas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            var villa = await _db.Villas.FirstOrDefaultAsync(x => x.Id == id);
 
             if (villa == null) return NotFound();
 

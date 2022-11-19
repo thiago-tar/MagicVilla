@@ -1,3 +1,6 @@
+using MagicVilla.API.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 //                                      .CreateLogger();
 
 //builder.Host.UseSerilog();
+
+builder.Services.AddDbContext<ApplicationDbContext>(option => 
+                        option.UseSqlServer(builder.Configuration
+                                            .GetConnectionString("DefaultSQLConnection")));
 
 builder.Services.AddControllers(option =>
 {

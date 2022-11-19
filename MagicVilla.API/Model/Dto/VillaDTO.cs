@@ -13,5 +13,19 @@ namespace MagicVilla.API.Model.Dto
         public int Ocurrency { get; set; }
 
         public int Sfto { get; set; }
+
+
+        public Villa ConvertToVilla()
+        {
+            Villa model = new()
+            {
+                Id = Id,
+                Name = Name,
+                Ocurrency = Ocurrency,
+                Sfto = Sfto
+            };
+
+            return model;
+        }
     }
 }
